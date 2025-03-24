@@ -28,12 +28,7 @@ git clone https://github.com/builtnorth/icon-generator.git
 cd icon-generator
 ```
 
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Generate icons & follow prompts:
+2. Generate icons & follow prompts:
 ```bash
 npm run generate-icons
 ```
