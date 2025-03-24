@@ -38,13 +38,29 @@ npm install
 npm run generate-icons
 ```
 
+The script will prompt you for:
+1. GitHub repository URL (e.g., https://github.com/phosphor-icons/core/tree/main/assets/regular)
+2. Icon set name (e.g., phosphor)
+3. Icon set label (e.g., Phosphor Icons)
+
+This will:
+- Download SVG icons from the repository
+- Create a data file in `src/data/`
+- Create a configuration file in `src/core/icons/`
+- Update the store.js with the new icon set
+
 ### Removing Icons
 
-1. Run:
+To remove an icon set:
+
 ```bash
 npm run remove-icons
 ```
-2. Follow prompt with name of icon set to remove.
+
+This will"
+- Remove the icon data file
+- Remove the icon config file
+- Remove references to icon library in store.js
 
 
 ## Contributing
