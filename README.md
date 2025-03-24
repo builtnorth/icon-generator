@@ -38,6 +38,13 @@ npm install
 npm run generate-icons
 ```
 
+### Removing Icons
+
+1. Run:
+```bash
+npm run remove-icons
+```
+2. Follow prompt with name of icon set to remove.
 
 
 ## Contributing
