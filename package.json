@@ -1,0 +1,24 @@
+{
+  "name": "@builtnorth/icon-generator",
+  "version": "0.1.0",
+  "description": "A flexible icon generator that generates and stores icons for ease of use",
+  "main": "src/core/index.js",
+  "type": "module",
+  "scripts": {
+    "generate-icons": "node scripts/generate-icons.js",
+    "remove-icons": "node scripts/remove-icons.js"
+  },
+  "keywords": [
+    "icons",
+    "generator"
+  ],
+  "author": "Built North",
+  "license": "GPL-2.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/builtnorth/icon-generator.git"
+  },
+  "bugs": {
+    "url": "https://github.com/builtnorth/icon-generator/issues"
+  }
+} 
