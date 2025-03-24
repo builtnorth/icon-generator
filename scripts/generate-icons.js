@@ -110,17 +110,17 @@ export const ${name}Icons = ${JSON.stringify(icons, null, 2)};
  * @param {string} label - Icon set label
  */
 async function updateCoreIcons(name, label) {
-    const coreFile = path.join(__dirname, '../src/core/icons.js');
-    let content = '';
-    
-    // Read existing file or create new one
-    if (fs.existsSync(coreFile)) {
-        content = await fs.promises.readFile(coreFile, 'utf8');
+    const iconDir = path.join(__dirname, '../src/core/icons');
+    const iconFile = path.join(iconDir, `${name}.js`);
+
+    // Ensure icons directory exists
+    if (!fs.existsSync(iconDir)) {
+        fs.mkdirSync(iconDir, { recursive: true });
     }
 
     const exportName = name.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
-    const importStatement = `import { ${name}Icons } from '../data/${name}';`;
-    const exportStatement = `
+    const content = `import { ${name}Icons } from '../../data/${name}';
+
 /**
  * ${label} configuration
  */
@@ -129,20 +129,11 @@ export const ${exportName} = {
     label: '${label}',
     icons: ${name}Icons,
     enabled: true
-};`;
+};
+`;
 
-    if (!content) {
-        // Create new file
-        content = `${importStatement}\n${exportStatement}\n`;
-    } else if (!content.includes(importStatement)) {
-        // Add new import and export
-        const imports = content.split('\n\n')[0];
-        const rest = content.slice(imports.length);
-        content = `${imports}\n${importStatement}\n${rest}\n${exportStatement}\n`;
-    }
-
-    await fs.promises.writeFile(coreFile, content);
-    console.log(`✓ Updated core icons file: ${path.relative(process.cwd(), coreFile)}`);
+    await fs.promises.writeFile(iconFile, content);
+    console.log(`✓ Created icon configuration: ${path.relative(process.cwd(), iconFile)}`);
 }
 
 /**
@@ -154,7 +145,7 @@ async function updateStore(name) {
     let content = await fs.promises.readFile(storeFile, 'utf8');
 
     const exportName = name.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
-    const importStatement = `import { ${exportName} } from './icons';\n`;
+    const importStatement = `import { ${exportName} } from './icons/${name}';\n`;
 
     // If this is the first import, add it before the first comment
     if (!content.includes('import')) {
@@ -171,13 +162,8 @@ async function updateStore(name) {
     if (!content.includes(`    ${exportName},`)) {
         const storeStart = content.indexOf('export const iconStore = {');
         const insertPos = content.indexOf('\n', storeStart) + 1;
-        
-        // If there are other icon sets, add a comma after the last one
-        const existingIconSets = content.slice(insertPos, content.indexOf('    /**'));
-        const separator = existingIconSets.trim() ? ',\n' : '';
-        
         content = content.slice(0, insertPos) + 
-                 `    ${exportName}${separator}` + 
+                 `    ${exportName},\n` + 
                  content.slice(insertPos);
     }
 

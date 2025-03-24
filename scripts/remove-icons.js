@@ -45,38 +45,16 @@ async function removeDataFile(name) {
 }
 
 /**
- * Remove icon set from core icons file
+ * Remove icon set from core icons directory
  * @param {string} name - Icon set name
  */
 async function removeFromCoreIcons(name) {
-    const coreFile = path.join(__dirname, '../src/core/icons.js');
-    if (!fs.existsSync(coreFile)) return;
-
-    let content = await fs.promises.readFile(coreFile, 'utf8');
-    const exportName = name.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
-
-    // Remove import statement for icons
-    const importRegex = new RegExp(`import\\s*{\\s*${name}Icons\\s*}\\s*from\\s*'../data/${name}';?\n?`);
-    content = content.replace(importRegex, '');
-
-    // Remove the entire configuration block
-    const configRegex = new RegExp(
-        `\n?\\/\\*\\*[^*]*\\*\\s*${exportName}[^*]*\\*\\/\\s*` + // Comment block
-        `export\\s+const\\s+${exportName}\\s*=\\s*{[^}]+};?\n?`   // Export statement
-    , 'g');
-    content = content.replace(configRegex, '');
-
-    // Clean up empty lines
-    content = content.replace(/\n{3,}/g, '\n\n')
-                    .replace(/^\s*\n/, ''); // Remove leading empty line
-
-    // If file is empty, add a comment
-    if (content.trim() === '') {
-        content = "// Icon Entry Point - Will be populated when running 'npm run generate-icons'\n";
+    const iconFile = path.join(__dirname, '../src/core/icons', `${name}.js`);
+    
+    if (fs.existsSync(iconFile)) {
+        await fs.promises.unlink(iconFile);
+        console.log(`✓ Removed icon configuration: ${path.relative(process.cwd(), iconFile)}`);
     }
-
-    await fs.promises.writeFile(coreFile, content);
-    console.log(`✓ Removed from core icons file: ${path.relative(process.cwd(), coreFile)}`);
 }
 
 /**
@@ -90,15 +68,17 @@ async function removeFromStore(name) {
     let content = await fs.promises.readFile(storeFile, 'utf8');
     const exportName = name.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
 
-    // Remove import statement if it exists
-    const importRegex = new RegExp(`import\\s*{\\s*${exportName}\\s*}\\s*from\\s*'./icons';?\n?`);
-    content = content.replace(importRegex, '');
+    // Remove import statement - handle both old and new import paths
+    const importRegexOld = new RegExp(`import\\s*{\\s*${exportName}\\s*}\\s*from\\s*'./icons';?\n?`);
+    const importRegexNew = new RegExp(`import\\s*{\\s*${exportName}\\s*}\\s*from\\s*'./icons/${name}';?\n?`);
+    content = content.replace(importRegexOld, '')
+                    .replace(importRegexNew, '');
 
-    // Remove the specific icon set line from the store object
+    // Remove the icon set from the store object
     const iconSetLineRegex = new RegExp(`\\s*${exportName},?\n`);
     content = content.replace(iconSetLineRegex, '\n');
 
-    // Clean up any double newlines
+    // Clean up empty lines
     content = content.replace(/\n{3,}/g, '\n\n');
 
     await fs.promises.writeFile(storeFile, content);
@@ -114,7 +94,7 @@ async function removeIconSet(name) {
         // Remove data file
         await removeDataFile(name);
 
-        // Remove from core icons file
+        // Remove from core icons directory
         await removeFromCoreIcons(name);
 
         // Remove from store file
